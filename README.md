@@ -23,6 +23,7 @@ Para aprender os conceitos básicos de Node.js e algumas das principais tecnolog
 Para fazer o nosso sistema, vamos usar o framework [Express.js](https://expressjs.com/). Ele é muito todo usado no mundo e extremamente simples de aprender! Para facilitar a nossa vida, o Express já tem uma ferramenta que cria uma estrutura de arquivos simples para nós. Para isso, temos que instalar o Express na nossa máquina.
 Fazemos isso com o comando `npm install -g express`:
 ![instalação do express](assets/images/express-install.PNG)
+
 `install`: instrução que queremos executar
 `express`: Nome do pacote que queremos instalar
 `-g`: Instala o pacote globalmente
@@ -32,6 +33,7 @@ Podemos confirmar que a instalação funcionu corretamente checando a versão do
 
 Agora podemos criar o nosso projeto! Em um diretório vazio (chamei o meu de node-starter, mas você pode escolher o nome que quiser), vamos executar o comando `express . --view=ejs`.
 ![criação do template do projeto](assets/images/express-create.PNG)
+
 O meu diretório já tinha alguns arquivos, como [README.md]() e [LICENCE](), por isso tive que confirmar que queria criar o projeto lá mesmo.
 
 ###### Vamos entender melhor o que ele criou:
@@ -54,6 +56,8 @@ Podemos ver que um diretório chamado **node_modules** foi criado. É nele que t
 
 Chegou a hora de ver se tudo até agora funcionou! Quando o arquivo [package.json](package.json) foi criado, um script chamado "start" foi criado junto. Ele é uma maneira mais fácil que utilizaremos para inicializar o nosso servidor. Podemos ver que ele é simplesmente um atalho que executa o comando `node ./bin/www`, ou seja, roda com `node` o arquivo [www](www) no diretório [bin](/bin). Para executar um script, utilizamos o comando `npm run <script>`, então no nosso caso fazemos `npm run start`:
 ![npm run start](assets/images/npm-run-start.PNG)
+
 Por padrão, o servidor roda na porta 3000. Podemos então acessar a página [http://localhost:3000]() para ver se tudo deu certo:
 ![Welcome to Express](assets/images/welcome-to-express.png)
+
 Oba! Tudo funcionou corretamente e estamos vendo a página padrão do Express sendo renderizada na raiz do site.
