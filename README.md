@@ -61,3 +61,36 @@ Por padrão, o servidor roda na porta 3000. Podemos então acessar a página [ht
 ![Welcome to Express](assets/images/welcome-to-express.png)
 
 Oba! Tudo funcionou corretamente e estamos vendo a página padrão do Express sendo renderizada na raiz do site.
+
+## O que são rotas?
+
+Rotas são os caminhos que configuramos para que os serviços que a nossa aplicação vai disponibilizar sejam acessados. No nosso caso, por exemplo, criaremos uma rota para manipularmos os usuários e suas músicas preferidas. Os diferentes "caminhos" de uma API são chamados de **endpoints**.
+
+---
+
+Você pode perceber que o nosso modelo de projeto já veio com duas rotas configuradas, que são os arquivos em [routes/](/routes). Se abrirmos o arquivo [routes/index.js](/routes/index.js), veremos que há apenas um endpoint configurado. O método definido foi GET, no caminho '/' e a função executada quando o endpoint é acessado renderiza a **view** [views/index.ejs](/views/index.ejs), passando um parâmetro chamado _title_ com o valor _Express_. Se trocarmos este valor:
+
+![title: node](/assets/images/title-node.png)
+
+e acessarmos novamente a página em [http://localhost:3000](), veremos que o texto... Continua o mesmo! Por que será? 🤔
+
+Há alguns minutos, nós iniciamos o nosso servidor, e em não fizemos nenhum tipo de atualização nele. Em outras palavras, ele não tem a menor ideia de que nós mudamos alguma coisa no nosso código. Para que as nossas mudanças façam efeito, devemos parar a execução do servidor, e depois iniciá-la novamente. Paramos a execução de algum processo com o comando `Ctrl+C`, e depois usamos o mesmo comando de antes:
+
+![restart server](/assets/images/restart-server.png)
+
+Se acessarmos a página novamente, poderemos ver que a nossa mudança fez efeito!
+
+![Welcome to Node](/assets/images/welcome-to-node.png)
+
+## Nodemon
+
+Como você pode imaginar, é muito trabalhoso e nem um pouco eficiente ter que ir para o terminal, parar o servidor e iniciá-lo novamente a cada mudança que fazemos no nosso código. Para a nossa comodidade, existe um pacote que faz exatamente isso para nós! Para instalar, basta executar o comando `npm install -g nodemon`. Depois de instalado, podemos verificar que está tudo certo usando o comando `nodemon -v`, que mostra a versão do nodemon instalada:
+
+![nodemon -v: 2.0.4](/assets/images/nodemon-version.png)
+
+No arquivo [package.json](/package.json), vamos criar um novo script para que o servidor se reinicie automaticamente. Em `"scripts"`, vamos adicionar mais uma entrada. Vou chamar o meu de `watch`, mas não é obrigatório que ele seja chamado assim.
+
+!["watch": "nodemon ./bin/www"](/assets/images/watch-script.png)
+**É importante observar que arquivos com a extensão JSON devem, **obrigatoriamente**, conter chaves e valores envolvidos com **aspas duplas (")\*_._
+
+Se executarmos agora `npm run watch`, veremos que o servidor é reiniciado toda vez que um arquivo é atualizado, fazendo com que sempre tenhamos a versão mais recente do nosso programa sendo executada sem a necessidade de fazer todo o processo de reinicialização manualmente.
