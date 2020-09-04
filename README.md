@@ -92,6 +92,50 @@ No arquivo [package.json](/package.json), vamos criar um novo script para que o 
 
 !["watch": "nodemon ./bin/www"](/assets/images/watch-script.png)
 
-*É importante observar que arquivos com a extensão JSON devem, **obrigatoriamente**, conter chaves e valores envolvidos com **aspas duplas (")**.*
+_É importante observar que arquivos com a extensão JSON devem, **obrigatoriamente**, conter chaves e valores envolvidos com **aspas duplas (")**._
 
 Se executarmos agora `npm run watch`, veremos que o servidor é reiniciado toda vez que um arquivo é atualizado, fazendo com que sempre tenhamos a versão mais recente do nosso programa sendo executada sem a necessidade de fazer todo o processo de reinicialização manualmente.
+
+## [app.js](/app.js)
+
+☝️ Clique aqui para abrir o arquivo, nele estão alguns comentários :)
+
+## Bootstrap
+
+Para deixarmos nosso sistema visualmente apresentável, vamos usar [Bootstrap](https://getbootstrap.com/). Como o foco aqui é mais backend e não o design da aplicação em si, não focaremos muito em CSS e estilização em geral.
+
+Podemos usar o [template](https://getbootstrap.com/docs/4.5/getting-started/introduction/#starter-template) para começar o nosso desenvolvimento.
+
+## Interpolando valores na página
+
+Em [views](/views), vamos criar um novo arquivo chamado [main.ejs](views/main.ejs) e colar o template nele. Podemos testar que está funcionando apenas mudando o arquivo que é renderizado em [routes/index.js](routes/index.js) e atualizando a página em nosso navegador:
+
+![res.render('main');](/assets/images/render-main.PNG)
+
+![Hello World](/assets/images/hello-world.PNG)
+
+Está tudo funcionando, ótimo! Msa não queremos sempre mostrar uma mensagem "Hello World" para os visitantes do site. Já vimos que podemos passar informações do nosso servidor direto para a página apenas adicionando um objeto depois do nome da _view_ que queremos renderizar. Vamos relembrar! No nosso render, vamos adicionar um objeto que contém um nome:
+
+![res.render('main', { name: 'Joãozinho' });](assets/images/render-with-name.PNG)
+
+Na nossa _view_, podemos adicionar `<% name %>` para interpolar o valor da nossa variável!
+
+![Hello, <% name %>!](assets/images/hello-name.PNG)
+
+Pronto! Agora se atualizarmos o navegador veremos a mensagem nova:
+
+![Hello, Joãozinho!](assets/images/hello-joaozinho.PNG)
+
+Podemos passar quantos atributos quisermos para a _view_, e vimos que é bem simples exibir os valores. Mais para frente veremos que também é possível, por exemplo, iterar todos os itens de um Array passado para uma _view_ e exibir todos os valores de forma fácil e elegante.
+
+## Criando um Banco de Dados
+
+Para a nossa aplicação, vamos usar o MongoDB. Para isso, precisamos ter uma conta no [Atlas](https://cloud.mongodb.com/) (não se preocupe, é de graça). Para criar _Projects_, precisamos antes ter uma _Organization_ criada. Basta seguir os passos que o próprio site mostra para fazer isso de forma extremamente fácil. Com uma _Organization_ criada, podemos criar um novo Projeto Clicando em "_+ New Project_". Chamei o meu de SongSave, mas você pode chamar o seu do nome que quiser!
+
+Depois de criarmos o projeto, devemos criar um _Cluster_. Para isso, basta clicar no botão "_Build a Cluster_", selecionar a primeira alternativa (free), e clicar em "_Create a Cluster_". É possível também dar um nome ao seu Cluster (o padrão é "Cluster0", que pode causar confusão). Vou nomear o meu "songsave", para ficar fácil. O processo de criação não demora mais que 5 minutos, e enquanto ele é executado, já podemos criar nosso usuário para acessar o banco. Clique em "Database Access" no menu lateral, e em seguida "Add New Database User". Temos que dar um nome e uma senha ao usuário. Darei novamente o nome de "songsave", apenas para ficar fácil de lembrar. Clicando em "Autogenerate Secure Password", uma senha será gerada. Lembre-se de copiar a senha e guardá-la em um local seguro, porque não é possível visualizá-la depois. (Podemos sempre criar uma senha nova, mas em seguida vamos conectar o nosso servidor ao Mongo, e não precisaremos mais nos preocupar com a senha)
+
+## Mongoose
+
+Para conectar o nosso servidor ao banco, vamos usar um pacote chamado [Mongoose](https://mongoosejs.com/). Para instalá-lo, simplesmente executamos `npm install mongoose` no nosso terminal:
+
+![npm install mongoose](assets/images/npm-install-mongoose.PNG)

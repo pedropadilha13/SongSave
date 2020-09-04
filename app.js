@@ -1,17 +1,26 @@
+// Normalmente importamos todos os pacotes que usamos no arquivo aqui no topo
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+// Aqui são importadas as duas rotas do template do Express, index e users
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+// Invocando express(), criamos a nossa aplicação Express
 var app = express();
 
-// view engine setup
+// Aqui configuramos onde as nossas views estão localizadas
 app.set('views', path.join(__dirname, 'views'));
+// E agora estamos dizendo que queremos usar EJS como view engine
 app.set('view engine', 'ejs');
+
+// app.use -> Adiciona funções middleware na rota especificada
+// Caso ela não seja especificada, a rota base '/' é usada
+// app.use pode receber uma ou mais funções, que são executadas na ordem em que são fornecidas
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -19,21 +28,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Aqui, identificamos o caminho e em seguida passamos a rota (que importamos no topo do arquivo)
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+// Este middleware será executado quando nenhuma rota for encontrada para satisfazer a requisição
+// Invocamos next passando um novo erro 404 (Not Found)
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+// Este é nosso Error Handler, responsável por renderizar a página de erro
+// Mais para frente, vamos modificar a view 'error' para que mostre informações além do código e nome do erro
+app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
