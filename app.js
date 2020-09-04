@@ -1,17 +1,21 @@
 // Normalmente importamos todos os pacotes que usamos no arquivo aqui no topo
 
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+
+const connectDB = require('./services/db');
+
+connectDB();
 
 // Aqui são importadas as duas rotas do template do Express, index e users
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 
 // Invocando express(), criamos a nossa aplicação Express
-var app = express();
+const app = express();
 
 // Aqui configuramos onde as nossas views estão localizadas
 app.set('views', path.join(__dirname, 'views'));

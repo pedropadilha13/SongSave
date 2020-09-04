@@ -116,15 +116,15 @@ Em [views](/views), vamos criar um novo arquivo chamado [main.ejs](views/main.ej
 
 Está tudo funcionando, ótimo! Msa não queremos sempre mostrar uma mensagem "Hello World" para os visitantes do site. Já vimos que podemos passar informações do nosso servidor direto para a página apenas adicionando um objeto depois do nome da _view_ que queremos renderizar. Vamos relembrar! No nosso render, vamos adicionar um objeto que contém um nome:
 
-![res.render('main', { name: 'Joãozinho' });](assets/images/render-with-name.PNG)
+![res.render('main', { name: 'Joãozinho' });](/assets/images/render-with-name.PNG)
 
 Na nossa _view_, podemos adicionar `<% name %>` para interpolar o valor da nossa variável!
 
-![Hello, <% name %>!](assets/images/hello-name.PNG)
+![Hello, <% name %>!](/assets/images/hello-name.PNG)
 
 Pronto! Agora se atualizarmos o navegador veremos a mensagem nova:
 
-![Hello, Joãozinho!](assets/images/hello-joaozinho.PNG)
+![Hello, Joãozinho!](/assets/images/hello-joaozinho.PNG)
 
 Podemos passar quantos atributos quisermos para a _view_, e vimos que é bem simples exibir os valores. Mais para frente veremos que também é possível, por exemplo, iterar todos os itens de um Array passado para uma _view_ e exibir todos os valores de forma fácil e elegante.
 
@@ -134,8 +134,65 @@ Para a nossa aplicação, vamos usar o MongoDB. Para isso, precisamos ter uma co
 
 Depois de criarmos o projeto, devemos criar um _Cluster_. Para isso, basta clicar no botão "_Build a Cluster_", selecionar a primeira alternativa (free), e clicar em "_Create a Cluster_". É possível também dar um nome ao seu Cluster (o padrão é "Cluster0", que pode causar confusão). Vou nomear o meu "songsave", para ficar fácil. O processo de criação não demora mais que 5 minutos, e enquanto ele é executado, já podemos criar nosso usuário para acessar o banco. Clique em "Database Access" no menu lateral, e em seguida "Add New Database User". Temos que dar um nome e uma senha ao usuário. Darei novamente o nome de "songsave", apenas para ficar fácil de lembrar. Clicando em "Autogenerate Secure Password", uma senha será gerada. Lembre-se de copiar a senha e guardá-la em um local seguro, porque não é possível visualizá-la depois. (Podemos sempre criar uma senha nova, mas em seguida vamos conectar o nosso servidor ao Mongo, e não precisaremos mais nos preocupar com a senha)
 
+Para fazermos a conexão, precisamos de algumas informações importantes, como o usuário e senha que criamos, nome do banco e o local do servidor. Tudo isso pode ser encontrado no que chamamos de _connection string_, que pode ser obtida clicando em _CONNECT_ no nosso Cluster.
+
+Você deverá liberar o seu IP para acessar o banco, pois o servidor só aceita conexões de clientes que estão presentes em uma whitelist. Você pode liberar todos os IPs, embora não seja recomendado por questões de segurança. Depois disso, escolha o método que permite conectar a sua aplicação e copie a _connection string_ fornecida. Note que nela há um espaço onde está o texto `<password>`. Você deverá substituí-lo pela sua senha para que a conexão seja realizada. Você deve, também, substituir `<dbname>` pelo nome do seu banco. No meu caso, chamei o banco de `dev` (estamos em um ambiente de desenvolvimento, por isso o nosso banco será dev. Quando fizermos o deploy do nosso sistema, vamos trocar o banco para `prod`, garantindo assim que não haverá interferência de um ambiente no outro).
+
 ## Mongoose
 
 Para conectar o nosso servidor ao banco, vamos usar um pacote chamado [Mongoose](https://mongoosejs.com/). Para instalá-lo, simplesmente executamos `npm install mongoose` no nosso terminal:
 
-![npm install mongoose](assets/images/npm-install-mongoose.PNG)
+![npm install mongoose](/assets/images/npm-install-mongoose.PNG)
+
+#### [db.js](/services/db.js)
+
+Para organizar melhor os serviços do nosso sistema, vamos criar uma pasta [services](/services). Agora, dentro dela, vamos criar um arquivo [db.js](services/db.js) para conectar o nosso servidor ao banco. Nele, devemos importar o **mongoose** com a seguinte instrução:
+
+```javascript
+const mongoose = require('mongoose');
+```
+
+Depois, criamos uma função chamada connectDB, nela inserimos um bloco try/catch. Dentro dele, tentaremos iniciar a conexão com o banco. Note que aqui devemos inserir a nossa _connection string_ completa:
+
+```javascript
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(
+      'mongodb+srv://songsave:gxgDJWcvHrMmCn65@cluster0.ky6xj.mongodb.net/dev?retryWrites=true&w=majority',
+      {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+      }
+    );
+    console.log('MongoDB connected');
+  } catch (error) {
+    console.error(error);
+  }
+};
+```
+
+(Caso haja dúvidas a respeito da sintaxe utilizada, você pode ler um pouco mais aqui: [Arrow function expressions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions))
+
+Finalmente, exportamos a nossa função no fim do arquivo:
+
+```javascript
+module.exports = connectDB;
+```
+
+Voltando ao [app.js](app.js), importamos e logo abaixo já invocamos a nossa função:
+
+```javascript
+const connectDB = require('./services/db');
+
+connectDB();
+```
+
+Se tudo der certo, a mensagem "MongoDB connected" aparecerá no console:
+
+![MongoDB connected](/assets/images/mongodb-connected.PNG)
+
+Caso um erro ocorra, certifique-se de que:
+
+- seu nome de usuário e senha estão corretos
+- seu IP atual está com acesso liberado no Atlas
+- a senha **não** está com os caracteres '<' e '>' em volta
