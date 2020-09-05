@@ -22,6 +22,7 @@ Para aprender os conceitos básicos de Node.js e algumas das principais tecnolog
 
 Para fazer o nosso sistema, vamos usar o framework [Express.js](https://expressjs.com/). Ele é muito todo usado no mundo e extremamente simples de aprender! Para facilitar a nossa vida, o Express já tem uma ferramenta que cria uma estrutura de arquivos simples para nós. Para isso, temos que instalar o Express na nossa máquina.
 Fazemos isso com o comando `npm install -g express`:
+
 ![instalação do express](assets/images/express-install.PNG)
 
 `install`: instrução que queremos executar
@@ -29,9 +30,11 @@ Fazemos isso com o comando `npm install -g express`:
 `-g`: Instala o pacote globalmente
 
 Podemos confirmar que a instalação funcionu corretamente checando a versão do express (como fizemos anteriormente) utilizando o comando `express --version`:
+
 ![express --version: 4.16.0](assets/images/express-version.PNG)
 
 Agora podemos criar o nosso projeto! Em um diretório vazio (chamei o meu de node-starter, mas você pode escolher o nome que quiser), vamos executar o comando `express . --view=ejs`.
+
 ![criação do template do projeto](assets/images/express-create.PNG)
 
 O meu diretório já tinha alguns arquivos, como [README.md]() e [LICENCE](), por isso tive que confirmar que queria criar o projeto lá mesmo.
@@ -48,6 +51,7 @@ O meu diretório já tinha alguns arquivos, como [README.md]() e [LICENCE](), po
 ## Instalando as dependências
 
 Para instalar todas as dependências do projeto (especificadas no arquivo [package.json](package.json)), usamos o comando `npm install`, ou simplesmente `npm i`:
+
 ![npm install](assets/images/npm-install.PNG)
 
 Podemos ver que um diretório chamado **node_modules** foi criado. É nele que todas as dependências de um projeto ficam, seja em um ambiente de desenvolvimento (como o nosso) ou um de produção (servidor). É comum e boa prática ignorar o **node_modules** inteiro em ferramentas de controle de versão (como o GitHub). Fazemos isso criando um arquivo chamado [.gitignore](.gitignore) e adicionando "node_modules/" a ele. No meu caso, quando criei o repositório no GitHub já selecionei um modelo de arquivo .gitignore feito para Node.js, que contém as configurações mais comuns para este tipo de projeto. (Há vários tipos, você pode ver todos os templates em [New Repository](https://github.com/new)).
@@ -55,9 +59,11 @@ Podemos ver que um diretório chamado **node_modules** foi criado. É nele que t
 ## Rodando o nosso projeto
 
 Chegou a hora de ver se tudo até agora funcionou! Quando o arquivo [package.json](package.json) foi criado, um script chamado "start" foi criado junto. Ele é uma maneira mais fácil que utilizaremos para inicializar o nosso servidor. Podemos ver que ele é simplesmente um atalho que executa o comando `node ./bin/www`, ou seja, roda com `node` o arquivo [www](www) no diretório [bin](/bin). Para executar um script, utilizamos o comando `npm run <script>`, então no nosso caso fazemos `npm run start`:
+
 ![npm run start](assets/images/npm-run-start.PNG)
 
 Por padrão, o servidor roda na porta 3000. Podemos então acessar a página [http://localhost:3000]() para ver se tudo deu certo:
+
 ![Welcome to Express](assets/images/welcome-to-express.png)
 
 Oba! Tudo funcionou corretamente e estamos vendo a página padrão do Express sendo renderizada na raiz do site.
@@ -196,3 +202,59 @@ Caso um erro ocorra, certifique-se de que:
 - seu nome de usuário e senha estão corretos
 - seu IP atual está com acesso liberado no Atlas
 - a senha **não** está com os caracteres '<' e '>' em volta
+
+## .env
+
+Por motivos de segurança, **nunca** deixamos dados sensíveis no nosso código. Um exemplo é a nossa _connection string_. Ela dá acesso ao nosso banco de dados, então não faz sentido deixar qualquer pessoa ter acesso a ela. Para isso, vamos utilizar **Variáveis de Ambiente**. Vamos criar um arquivo [.env](.env), e nele adicionar as nossas informações secretas. Logicamente, arquivos .env também nunca fazem parte do nosso controle de versão (ou seja, não vamos subir para o repositório). Além de ser muito fácil, essa abordagem que vamos utilizar vai facilitar a nossa vida mais para frente!
+
+No nosso [.env](.env), devemos simplesmente colocar `chave=valor`, sem nenhum tipo de notação complicada:
+
+```
+MONGO_URI=mongodb+srv://songsave:gxgDJWcvHrMmCn65@cluster0.ky6xj.mongodb.net/dev?retryWrites=true&w=majority
+```
+
+O nosso servidor não sabe que queremos usar essas Variáveis de Ambiente, então temos que explicar isso para ele! Faremos isso usando o pacote [dotenv](https://www.npmjs.com/package/dotenv):
+
+![npm install dotenv](assets/images/npm-install-dotenv.PNG)
+
+Agora fazemos a inicialização no topo do nosso [app.js](app.js):
+
+```javascript
+require('dotenv').config();
+```
+
+Agora, em [db.js](services/db.js) fazemos a seguinte chamada:
+
+```javascript
+const conn = await mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+```
+
+Pronto! Se rodarmos o nosso script `watch` novamente, vamos ver que tudo está funcionando ainda, e não temos que nos preocupar com pessoas erradas tendo acesso ao nosso banco, chaves de APIs, ou qualquer informação coisa privada.
+
+![MongoDB connected](assets/images/dotenv-ok.PNG)
+
+## Schemas
+
+Agora que temos a nossa conexão funcionando normalmente, podemos começar a pensar nas Entidades que nosso sistema vai ter. Temos que ter um Schema para guardar nosso usuários e outro para guardar as playlists que eles vão criar. Vou criar um diretório [models/](/models), e nele criaremos os seguintes arquivos:
+
+- [User.js](models/User.js)
+- [Link.js](models/Link.js)
+- [Playlist.js](models/Playlist.js)
+
+Em [User.js](models/User.js), fazemos uso do módulo `bcrypt`, então não devemos nos esquecer de executar o comando `npm install bcrypt` no terminal.
+
+Agora, no [app.js](app.js), devemos importar os 3 arquivos criados. Vamos fazer isso logo antes de conectarmos ao banco:
+
+```javascript
+const connectDB = require('./services/db');
+require('./models/User');
+require('./models/Link');
+require('./models/Playlist');
+
+connectDB();
+```
+
+Com as mudanças que fizemos, agora já podemos começar a desenvolver nosso sistema de verdade!

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 // Normalmente importamos todos os pacotes que usamos no arquivo aqui no topo
 
 const createError = require('http-errors');
@@ -7,6 +9,9 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const connectDB = require('./services/db');
+require('./models/User');
+require('./models/Link');
+require('./models/Playlist');
 
 connectDB();
 
