@@ -2,6 +2,26 @@
 
 Repositório para estudar os principais aspectos de Node.js e um pouco mais :)
 
+## Índice
+
+[Instalação](#instalação)
+[npm](#npm)
+[O que faremos?](#o-que-faremos)
+[Criando a estrutura do projeto](#criando-a-estrutura-do-projeto)
+[Vamos entender melhor o que ele criou:](#vamos-entender-melhor-o-que-ele-criou)
+[Instalando as dependências](#instalando-as-dependências)
+[Rodando o nosso projeto](#rodando-o-nosso-projeto)
+[O que são rotas?](#o-que-são-rotas)
+[Nodemon](#nodemon)
+[app.js](#appjs)
+[Bootstrap](#bootstrap)
+[Interpolando valores na página](#interpolando-valores-na-página)
+[Criando um Banco de Dados](#criando-um-banco-de-dados)
+[Mongoose](#mongoose)
+[db.js](#dbjs)
+[.env](#env)
+[Schemas](#schemas)
+
 ## Instalação
 
 Para instalar o Node, baixe o instalador no [site oficial](https://nodejs.org/).
@@ -150,7 +170,7 @@ Para conectar o nosso servidor ao banco, vamos usar um pacote chamado [Mongoose]
 
 ![npm install mongoose](/assets/images/npm-install-mongoose.PNG)
 
-#### [db.js](/services/db.js)
+## [db.js](/services/db.js)
 
 Para organizar melhor os serviços do nosso sistema, vamos criar uma pasta [services](/services). Agora, dentro dela, vamos criar um arquivo [db.js](services/db.js) para conectar o nosso servidor ao banco. Nele, devemos importar o **mongoose** com a seguinte instrução:
 
