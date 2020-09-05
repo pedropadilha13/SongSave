@@ -4,23 +4,49 @@ Repositório para estudar os principais aspectos de Node.js e um pouco mais :)
 
 ## Índice
 
-[Instalação](#instalação)
-[npm](#npm)
-[O que faremos?](#o-que-faremos)
-[Criando a estrutura do projeto](#criando-a-estrutura-do-projeto)
-[Vamos entender melhor o que ele criou:](#vamos-entender-melhor-o-que-ele-criou)
-[Instalando as dependências](#instalando-as-dependências)
-[Rodando o nosso projeto](#rodando-o-nosso-projeto)
-[O que são rotas?](#o-que-são-rotas)
-[Nodemon](#nodemon)
-[app.js](#appjs)
-[Bootstrap](#bootstrap)
-[Interpolando valores na página](#interpolando-valores-na-página)
-[Criando um Banco de Dados](#criando-um-banco-de-dados)
-[Mongoose](#mongoose)
-[db.js](#dbjs)
-[.env](#env)
-[Schemas](#schemas)
+- [Instalação](#instalação)
+
+- [npm](#npm)
+
+- [O que faremos?](#o-que-faremos)
+
+- [Criando a estrutura do projeto](#criando-a-estrutura-do-projeto)
+
+- [Vamos entender melhor o que ele criou:](#vamos-entender-melhor-o-que-ele-criou)
+
+- [Instalando as dependências](#instalando-as-dependências)
+
+- [Rodando o nosso projeto](#rodando-o-nosso-projeto)
+
+- [O que são rotas?](#o-que-são-rotas)
+
+- [Nodemon](#nodemon)
+
+- [app.js](#appjs)
+
+- [Bootstrap](#bootstrap)
+
+- [Interpolando valores na página](#interpolando-valores-na-página)
+
+- [Criando um Banco de Dados](#criando-um-banco-de-dados)
+
+- [Mongoose](#mongoose)
+
+- [db.js](#dbjs)
+
+- [.env](#env)
+
+- [Schemas](#schemas)
+
+- [Recapitulando...](#recapitulando)
+
+- [Página de Login... Ou apenas uma Partial?](#página-de-login-ou-apenas-uma-partial)
+
+- [O que é uma Partial View?](#o-que-é-uma-partial-view)
+
+- [Estilos e Scripts dinâmicos](#estilos-e-Scripts-dinâmicos)
+
+- [Login](#login)
 
 ## Instalação
 
@@ -278,3 +304,165 @@ connectDB();
 ```
 
 Com as mudanças que fizemos, agora já podemos começar a desenvolver nosso sistema de verdade!
+
+## Recapitulando...
+
+Vamos lembrar, de forma geral, o que fizemos até agora:
+
+- Criamos o projeto usando o template do [Express.js](https://expressjs.com/)
+- Criamos um Banco de Dados no [Atlas](https://cloud.mongodb.com/)
+- Conectamos nossa aplicação ao Banco
+- Criamos Schemas para armazenar dados
+
+Agora vamos começar a desenvolver nossa primeira tela!
+
+## Página de Login... Ou apenas uma Partial?
+
+Para identificarmos quem é quem no nosso sistema, vamos implementar as funções de **Cadastro** e **Login**. Poderíamos fazer uma página para cada, e depois uma página diferente para as áreas restritas do site, mas vamos fazer diferente: teremos uma página "master", e vamos inserir outras páginas menores dentro dela. Faremos isso usando _Partial Views_.
+
+##### O que é uma Partial View?
+
+É, de forma simplificada, uma _View_ que é encaixada dentro de outra. Lembra quando inserimos "Joãozinho" na nossa página pelo `render`? Faremos a mesma coisa agora, mas inserindo outras páginas e componentes em vez de texto apenas.
+
+Dentro de [views](/views), vamos criar o diretório [shared](/views/shared) para guardar os pedaços que vamos compartilhar entre as diferentes páginas.
+
+Já temos o arquivo [views/main.ejs](/views/main.ejs), e vamos usá-lo como "master". Podemos fazer alguns refatoramentos para facilitar não só uma possível manutenção futura, mas também nosso entendimento agora.
+
+Podemos separar as principais áreas do [main.ejs](views/main.ejs) atual em pedaços menores, e depois incluí-los de volta:
+
+- [\_header.ejs](views/shared/_header.ejs)
+- [\_scripts.ejs](views/shared/scripts.ejs)
+
+Depois, basta incluir os fragmentos da seguinte forma: `<% include caminho/para/partial %>`
+
+![main.ejs](/assets/images/main-ejs-refactor.png)
+
+Veja como nosso arquivo [main.ejs](views/main.ejs) ficou muito menor e fácil de entender. Quando separamos nossas diferentes partes do sistema em pedaços menores, fica muito mais fácil adicionar novas funcionalidades, modificar as que já existem e principalmente resolver potenciais erros que seu sistema possa apresentar, tanto em desenvolvimento quanto em produção.
+
+Agora, vamos criar uma página de **Login** e inserí-la na nossa view principal:
+
+[/views/login.ejs](/views/login.ejs)
+
+E inserimos `<% include login %>` na _view_ principal.
+
+Um teste rápido mostra que estamos inserindo corretamente:
+
+![Login](/assets/images/include-login.png)
+
+Vamos mover "Hello, Joãozinho!" para uma nova partial, [index.ejs](views/index.ejs) e tirar o último include que fizemos para testar.
+
+Para renderizar uma página específica, vamos passar o argumento `page` no segundo argumento de `render`. Recebemos isso no nosso [main.ejs](views/main.ejs) assim:
+
+![include(locals.page || 'index')](/assets/images/include-page-or-index.png)
+
+`locals` é onde recebemos os argumentos na _view_. Como vimos, podemos usar apenas o nome de algum argumento, mas se ele não existir um erro acontece. Usando `locals`, evitamos esse comportamento.
+
+Perceba que não estamos apenas incluindo uma página, mas fazemos um teste lógico também: Se locals.page existir, ele será usado, mas caso o valor dele seja `falsy`, a _view_ `index` será incluída por padrão. Um valor é `falsy` quando é considerado `false` em uma situação de comparação lógica. São eles:
+
+```javascript
+undefined, null, NaN, 0, '' e false
+```
+
+Com isso, podemos fazer um teste e verificar que tudo está funcionando como esperado, basta fazer uma pequena modificação na nossa rota principal:
+
+```javascript
+router.get('/', function (req, res, next) {
+  res.render('main', { page: 'login' });
+});
+```
+
+![Login](/assets/images/render-page-login.png)
+
+Agora que já temos como escolher qual página vamos mostrar de forma simples, vamos começar a separar melhor as nossas rotas:
+
+Vou criar um arquivo novo para armazenar todas as nossas rotas relacionadas a **autenticação**, [auth.js](/routes/auth.js). Vamos começar com uma rota básica:
+
+```javascript
+const express = require('express');
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  return res.render('main', {
+    page: 'login'
+  });
+});
+
+module.exports = router;
+```
+
+Podemos apagar a rota que veio configurada, [users.js](/routes/users.js), não esquecendo de apagar o `require` e o `use` no [app.js](app.js).
+
+No lugar dele, vamos incluir nossa authRoute e usá-la:
+
+```javascript
+[...]
+
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+
+[...]
+
+app.use('/', indexRouter);
+app.use('/auth', authRouter);
+
+[...]
+```
+
+Agora, se navegarmos até [http://localhost:3000/auth](http://localhost:3000/auth), vamos ver que a página certa apareceu:
+
+![localhost:3000/auth Login](assets/images/localhost-auth.png)
+
+Perceba que o título da página é sempre o mesmo, "Hello, world!". Podemos usar a mesma técnica para mudar o título de acordo com a página que estamos renderizando. Em [\_header.ejs](/views/shared/_header.ejs), vamos mudar a tag `<title>`:
+
+![<%= locals.title || "SongSave" %>](/assets/images/locals-title.png)
+
+Assim, podemos sempre escolher qual será o título da página, e garantimos que "SongSave" aparecerá quando não especificarmos nada.
+
+## Estilos e Scripts dinâmicos
+
+Outra mudança interessante que faremos é adicionar a possibiidade de carregar arquivos **css** e **js** direto do `render`, que é útil para arquivos que só serão usados em algumas páginas específicas:
+
+Vamos criar uma nova _Partial View_ chamada [\_styles.ejs](/views/shared/_styles.ejs):
+
+```
+<% locals.styles && styles.forEach(style => {
+    if (style.substr(0, 4) !== "http") { %>
+        <link rel="stylesheet"
+            href="/assets/css/<%= style.match(/[a-z0-9]{0,}\.css$/gi) ? style : `${style}.css?version=${parseInt(Math.random() * 10000000)}` %>" />
+    <% } else { %>
+        <link rel="stylesheet" href="<%= style %>" />
+    <% } %>
+<% }); %>
+```
+
+Pode parecer meio complicado, mas na verdade tudo que fazemos aqui é iterar por todos os `styles` fornecidos, e para cada um fazemos um pequeno teste: se ele não começar com 'http', ou seja, se não for um link externo, incluímos o arquivo do diretório `/assets/css/`, e caso o caminho seja um link, incluímos normalmente.
+
+Não podemos nos esquecer de incluir a nossa nova partial em [\_header.ejs](/views/shared/_header.ejs)
+
+<% include \_styles %>
+
+Faremos a mesma coisa para arquivos JS em [\_scripts.ejs](/views/shared/_scripts.ejs).
+
+```ejs
+[...]
+<% locals.scripts && scripts.forEach(script => { %>
+<script
+  src="/assets/js/<%= script.match(/[a-z0-9]{0,}\.js$/gi) ? script : `${script}.js?version=${parseInt(Math.random() * 10000000)}` %>"></script>
+<% }); %>
+```
+
+Agora, se adicionarmos `styles: ['login']` ao nosso render, vamos ver que o arquivo _login.css_ vai ser carregado pela nossa página:
+
+![login.css](/assets/images/login-network.png]
+
+Podemos então criar estilos específicos para algumas páginas, e não ter apenas um arquivo gigante com todo o estilo do site inteiro. Mais uma vez, facilitando o entendimento e evitando erros.
+
+## Login
+
+Agora já temos tudo para criar nosso layout de Login!
+
+[login.ejs](views/_login.ejs)
+
+[login.css](public/assets/css/login.css)
+
+Se tentarmos enviar o formulário, vamos ver que recebemos um erro 404 de volta. Isso acontece porque o navegador tenta fazer um POST em /auth, mas ainda não implementamos o método POST em [auth.js](/routes/auth.js). Vamos fazer isso agora!

@@ -17,7 +17,7 @@ connectDB();
 
 // Aqui são importadas as duas rotas do template do Express, index e users
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
+const authRouter = require('./routes/auth');
 
 // Invocando express(), criamos a nossa aplicação Express
 const app = express();
@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Aqui, identificamos o caminho e em seguida passamos a rota (que importamos no topo do arquivo)
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 
 // Este middleware será executado quando nenhuma rota for encontrada para satisfazer a requisição
 // Invocamos next passando um novo erro 404 (Not Found)
