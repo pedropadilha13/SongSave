@@ -48,6 +48,14 @@ Repositório para estudar os principais aspectos de Node.js e um pouco mais :)
 
 - [Login](#login)
 
+- [Signup](#signup)
+
+- [Login... Agora sim!](#login-agora-sim)
+
+- [Session Store](#session-store)
+
+- [Restringindo Acesso](#restringindo-acesso)
+
 ## Instalação
 
 Para instalar o Node, baixe o instalador no [site oficial](https://nodejs.org/).
@@ -466,3 +474,405 @@ Agora já temos tudo para criar nosso layout de Login!
 [login.css](public/assets/css/login.css)
 
 Se tentarmos enviar o formulário, vamos ver que recebemos um erro 404 de volta. Isso acontece porque o navegador tenta fazer um POST em /auth, mas ainda não implementamos o método POST em [auth.js](/routes/auth.js). Vamos fazer isso agora!
+
+```javascript
+router.post('/', (req, res) => {
+  res.send(req.body);
+});
+```
+
+Aqui estamos apenas pegando o que enviamos e mandando de volta para o navegador:
+
+![{ email: 'email', password: '1234', rememberMe: 'on' }](assets/images/send-body.PNG)
+
+Em vez de fazermos toda a lógica de login, vamos usar [passport.js](http://passportjs.org). Ele é um middleware que faz autenticação de modo extremamente simples, e o mais legal dele é que podemos usar várias _Strategies_ diferentes, que são usadas para autenticar com usuário e senha ou serviços como Google, Facebook, Discord, Twitter, e muitos outros. A lista completa de _Strategies_ pode ser encontrada no [site](http://passportjs.org), clicando na barra de pesquisa ou em _Strategies_ no menu lateral.
+
+No nosso caso, vamos usar a _Strategy_ **passport-local**.
+
+Devemos instalar os dois pacotes: `npm install passport passport-local`
+
+Vamos criar um novo arquivo para configurar o **passport**:
+
+[passport.js](services/passport.js)
+
+Com nosso arquivo pronto, a única coisa que falta é configurar o [app.js](app.js) para que ele use o **passport**:
+
+No topo, adicionamos:
+
+```javascript
+const passport = require('passport');
+require('./services/passport');
+```
+
+E depois inicializamos o passport, logo abaixo de `app.use(cookieParser());`:
+
+```javascript
+app.use(passport.initialize());
+app.use(passport.session());
+```
+
+Agora estamos prontos para autenticar usuários! Mas antes disso, temos que tê-los cadastrados, se não é impossível efetuar o login. Vamos lá!
+
+## Signup
+
+Primeiro, vamos adicionar um link logo abaixo do botão na página de login:
+
+```html
+<div class="mt-2">Novo por aqui? <a href="/auth/signup">Cadatre-se</a> já!</div>
+```
+
+Agora um link aparecerá na tela de login, onde as pessoas podem clicar para criar uma conta. Ele leva para `/auth/signup`, então vamos criar um caminho novo em [auth.js](/routes/auth.js):
+
+```javascript
+router.get('/signup', (req, res) => {
+  return res.render('main', {
+    page: 'signup',
+    title: 'Signup | SongSave',
+    styles: ['signup']
+  });
+});
+```
+
+E criamos um novo arquivo [signup.ejs](views/signup.ejs).
+
+Agora precisamos criar nossa nova rota POST `/auth/signup`:
+
+```javascript
+router.post('/signup', async (req, res) => {
+  // Leia mais sobre Desestruturação: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+  const { firstName, lastName, email, password, password2 } = req.body;
+
+  // Aqui vamos armazenar possíveis erros
+  const errors = {};
+
+  // Nome e sobrenome devem ser preenchidos
+  if (!firstName) {
+    errors.firstName = 'Campo obrigatório';
+  }
+
+  if (!lastName) {
+    errors.lastName = 'Campo obrigatório';
+  }
+
+  if (!email) {
+    // O campo é obrigatório
+    errors.email = 'Campo obrigatório';
+  } else if (!email.match(EMAIL_REGEX)) {
+    // Aqui checamos se o valor informado é um endereço de e-mail válido usando Regex (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp)
+    errors.email = 'E-mail inválido';
+  } else {
+    // Quando o e-mail é válido, verificamos se já existe algum usuário cadastrado com ele
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      errors.email = 'Email já cadastrado';
+    }
+  }
+  // Senha deve conter pelo menos 8 caracteres
+  if (password.length < 8) {
+    errors.password = 'A senha deve conter pelo menos 8 caracteres';
+  } else {
+    // Checamos também se a senha e a confirmação da senha são iguais
+    if (password !== password2) {
+      errors.password = 'As senhas informadas não são iguais';
+    }
+  }
+
+  // Caso tenhamos registrado algum erro, renderizamos a mesma página (signup), passando os erros. Em breve vamos modificar a view para mostrar os erros, caso existam
+  if (Object.keys(errors).length !== 0) {
+    return res.render('main', {
+      page: 'signup',
+      title: 'Signup | SongSave',
+      styles: ['signup'],
+      errors
+    });
+  }
+
+  try {
+    // Salvamos o usuário novo no banco e renderizamos a página de Login
+    await User.create({ firstName, lastName, email, password });
+    return res.status(201).render('main', {
+      page: 'login',
+      title: 'Login | SongSave',
+      styles: ['login']
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).render('main', {
+      page: 'signup',
+      title: 'Signup | SongSave',
+      styles: ['signup']
+    });
+  }
+});
+```
+
+Precisamos também fazer algumas modificações no arquivo [signup.ejs](views/signup.ejs). Precisamos verificar se existe uma mensagem de erro para cada campo. Se existir, precisamos adicionar a classe `is-invalid` e exibir uma mensagem. Aqui está o campo Nome como exemplo:
+
+```ejs
+<div class="form-group">
+  <label for="inputName" class="sr-only">Nome</label>
+  <input type="text" name="firstName" id="inputName" class="w-100 form-control<%= locals.errors && locals.errors.firstName ? ' is-invalid' : '' %>" placeholder="Nome" aria-describedby="firstNameFeedback" autofocus />
+  <div id="firstNameFeedback" class="invalid-feedback"><%= locals.errors && locals.errors.firstName || "" %></div>
+</div>
+```
+
+Todas as alterações podem ser encontradas direto no arquivo ([signup.ejs](views/signup.ejs)).
+
+Se tentarmos enviar o formulário com erros, percebemos que as mensagens de erro aparecem corretamente, mas os valores dos campos não estão mais lá. Isso acontece porque nós renderizamos a página novamente, então ela não se lembra do que escrevemos lá anteriormente. Para que os valores voltem, precisaremos passá-los de volta no render. Depois de `errors`, vamos incluir o seguinte:
+
+```javascript
+values: {
+  firstName, lastName, email, password, password2;
+}
+```
+
+Assim, podemos receber os valores na view e exibí-los (caso existam, é claro). Faremos isso da seguinte forma:
+
+```ejs
+  value="<%= locals.values && locals.values.CAMPO %>"
+```
+
+Aqui está o exemplo do campo nome:
+
+```ejs
+<div class="form-group">
+  <label for="inputName" class="sr-only">Nome</label>
+  <input type="text" name="firstName" id="inputName" class="w-100 form-control<%= locals.errors && locals.errors.firstName ? ' is-invalid' : '' %>" placeholder="Nome" aria-describedby="firstNameFeedback" value="<%= locals.values && locals.values.firstName %>" autofocus />
+  <div id="firstNameFeedback" class="invalid-feedback"><%= locals.errors && locals.errors.firstName || "" %></div>
+</div>
+```
+
+Novamente, todas as alterações podem ser encontradas direto no arquivo [signup.ejs](views/signup.ejs).
+
+Para que nosso projeto não fique totalmente sem estilo, vamos adicionar algumas configurações no arquivo [public/assets/css/style.css](/public/assets/css/style.css), e incluí-lo no [\_header](views/shared/_header.ejs) logo acima do `Bootstrap`:
+
+```html
+<link rel="stylesheet" href="/assets/css/style.css" />
+```
+
+Obs: Não vou explicar todas as mudanças que eu fizer lá, porque o foco deste estudo não é estilo, e sim o funcionamento geral da nossa aplicação.
+
+Agora já conseguimos criar contas, nos deparamos com mais uma situação onde a experiência do usuário pode ser afetada. Ao criar uma conta, o usuário é redirecionado para a página de login, sem nenhum tipo de aviso ou confirmação que ele teve sucesso na operação anterior. Para fazer esta e outras comunicações aos usuários, vamos criar uma nova _Partial View_ chamada [\_message.ejs](views/shared/_message.ejs) e incluí-la no topo do `body` da view [main.ejs](views/main.ejs) sempre que tivermos alguma mensagem para mostrar:
+
+```ejs
+<% locals.messages && locals.messages.forEach(message => { %>
+  <% include shared/_message %>
+<% }) %>
+```
+
+## Login... Agora sim!
+
+Como vamos redirecionar o usuário, não há como persistir a mensagem que queremos mandar entre _requests_. Para isso, vamos ter que usar outro módulo, que vai saber qual usuário está fazendo quais requisições no nosso servidor, e assim vai conseguir armazenar mensagens e outras informações. Este é o pacote que grava as _sessions_, e ele chama `express-session`.
+
+Como sempre, temos que instalá-lo usando `npm install express-session`.
+
+Em [app.js](app.js), devemos primeiro incluir `passport.local`, e acima de `passport.initialize()`, vamos configurá-lo:
+
+```javascript
+app.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+  })
+);
+```
+
+Com isso, conseguimos identificar nossos usuários. Como estamos usando o [passport.js](http://passportjs.org) e fizemos a configuração correta, teremos acesso ao usuário logado em `req.user` (quando houver uma sessão logada, claro).
+
+Agora que temos a `session` configurada, podemos gravar a mensagem e exibí-la. Logo depois de salvar o novo usuário, vamos criar uma nova mensagem:
+
+```javascript
+req.session.messages = [
+  ...(req.session.messages || []),
+  { variant: 'success', content: 'Cadastro realizado com sucesso!' }
+];
+```
+
+O que estamos fazendo aqui pode parecer complicado (e na verdade é), mas nem tanto assim. Para entender o que acontece, recomendo dar uma olhada [aqui](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax) antes.
+
+- Primeiro, criamos um novo array
+- Depois fazemos uma operação lógica 'OR' entre `req.session.messages` e [] (Array vazio). Caso o primeiro valor seja _falsy_ (no caso `req.session.messages`), o segundo é retornado
+- O valor retornado pela etapa anterior é espalhado (usando o operador ...) no novo array, junto com a nova mensagem
+
+Isso garante que, caso haja outras mensagens armazenadas em `req.session.messages`, elas não serão perdidas. Neste caso, não há como ter mensagens anteriores, mas no futuro pode haver casos em que isso ocorra, então é importante sabermos que isso pode ser um problema e que já sabemos como solucioná-lo! :)
+
+Como exibir mensagens é uma funcionalidade que queremos ter na nossa aplicação inteira, vamos extrair essa lógica para um `middleware`.
+
+Vamos criar um novo diretório [middlewares](/middlewares), e nele um arquivo chamado [messages.js](middlewares/messages.js):
+
+```javascript
+module.exports = (req, res, next) => {
+  res.locals = req.session.messages;
+  delete req.session.messages;
+  return next();
+};
+```
+
+No [app.js](app.js), devemos importar e usar nosso middleware novo:
+
+```javascript
+[...]
+const passport = require('passport');
+const messages = require('./middlewares/messages');
+
+[...]
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(messages);
+[...]
+```
+
+Para autenticarmos nosso usuário, usaremos o método `authenticate` do `passport`. Vamos modificar a rota `POST /auth` que havíamos criado para testar a submissão do form:
+
+```javascript
+router.post(
+  '/',
+  passport.authenticate('local', {
+    failureRedirect: '/auth',
+    successRedirect: '/'
+  })
+);
+```
+
+Antes de testarmos nossa autenticação, vamos fazer uma mudança na nossa rota [index.js](routes/index.js). Vamos voltar a renderizar a página [index.ejs](views/index.ejs), e mandar o nome do nosso usuário logado:
+
+```javascript
+router.get('/', function (req, res, next) {
+  res.render('main', { name: req.user.firstName, page: 'index' });
+});
+```
+
+Assim, mostraremos a mensagem de acordo com o nome do usuário autenticado.
+
+---
+
+Se tentarmos fazer login agora, vamos ver que nunca vamos conseguir, mesmo colocando o e-mail e a senha que cadastramos. Isso acontece porque o **passport**, por padrão, entende que os identificadores dos usuáros têm a chave **`username`**. Como nós estamos enviando o identificador como **`email`**, temos que alterar o nosso [passport.js](services/passport.js):
+
+```javascript
+passport.use(
+  new LocalStrategy(
+    {
+      passReqToCallback: true
+      usernameField: 'email',
+    },
+    async (req, username, password, done) => {
+      ...
+    }
+```
+
+Ao informar `usernameField` na inicialização da nossa **`LocalStrategy`**, o passport.js passará a entender que chamamos nosso identificador de **`email`**. Outra configuração que fizemos é **`passReqToCallback: true`**, que expõe `req` na função callback, possibilitando que nós enviemos mensagens para o usuário em caso de falha ou erro no processo de autenticação.
+
+Depois de muito custo, finalmente podemos tentar (e conseguir) fazer login!
+
+![Hello, Pedro!](assets/images/hello-pedro.PNG)
+
+Ótimo! Mas...
+
+Vamos supor que nosso servidor reinicie. O que acontecerá?
+Não precisamos supor, podemos testar e ver o que vai acontecer. Se digitarmos `rs` no nosso console, o nodemon vai reiniciar nosso servidor. Feito isso, vamos voltar para o navegador e atualizar a página:
+
+![Cannot read property 'firstName' of undefined](assets/images/cannot-read-firstName.PNG)
+
+###### O que aconteceu?
+
+Você lembra que configuramos `sessions` para guardar quem é quem no nosso sistema, não é mesmo?
+Vimos que isso está funcionando corretamente até que o servidor reinicie. Isso acontece porque as `sessions` ficam guardadas na memória do servidor. No momento em que ele é desligado, ele perde tudo que estava armazenado na memória, perdendo assim todos os registros de quem estava logado no nosso sistema. Isso mostra para nós que temos que fazer duas modificações importantes na nossa aplicação:
+
+- Dar um jeito de não perder quem está logado no nosso sistema
+- Fazer com que algumas páginas sejam restritas, ou seja, só quem estiver logado pode acessar
+
+Para a nossa sorte, tudo isso é muito fácil de fazer!
+
+## Session Store
+
+Para armazenar nossas `sessions` no nosso banco de dados, vamos usar um pacote chamado `connect-mongo`. Já sabe o que temos que fazer, né? `npm install connect-mongo`
+
+Em [app.js](app.js), adicionamos mais dois `requires`:
+
+```javascript
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
+```
+
+Note que ao importar o pacote, já o invocamos como uma função passando `session` como parâmetro.
+
+Feito isso, basta adicionar uma linha à nossa configuração da `session`:
+
+```javascript
+app.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+  })
+);
+```
+
+Tente fazer login e reiniciar o servidor novamente, e depois atualizar a página.
+
+A mensagem continua lá! Isso significa que estamos salvando nossa `session` no banco corretamente.
+Podemos confirmar que isso está acontecendo olhando no [Atlas](https://cloud.mongodb.com/).
+
+Na aba `COLLECTIONS`, podemos ver que temos uma `session` gravada:
+
+![session stored in db](assets/images/collections-session.PNG)
+
+## Restringindo acesso
+
+Nossa próxima tarefa é ter certeza de que certas páginas só poderão ser acessadas por usuários logados e outras por usuários não logados. Para isso, vamos criar mais 2 _middlewares_, `requireAuth` e `requireNotAuth`:
+
+- [requireAuth.js](middlewares/requireAuth.js)
+
+  ```javascript
+  module.exports = (req, res, next) => {
+    if (!req.user) {
+      req.session.messages = [
+        {
+          variant: 'danger',
+          content:
+            'Você precisa estar logado conseguir acessar a página solicitada'
+        }
+      ];
+      return res.status(403).redirect('/auth');
+    }
+
+    return next();
+  };
+  ```
+
+- [requireNotAuth.js](middlewares/requireNotAuth.js)
+
+  ```javascript
+  module.exports = (req, res, next) => {
+    if (req.user) {
+      return res.status(403).redirect('/');
+    }
+
+    return next();
+  };
+  ```
+
+Vamos também criar um arquivo [index.js](middlewares/index.js) que vai servir apenar para exportar os diferentes `middlewares` que criamos:
+
+```javascript
+module.exports = {
+  messages: require('./messages'),
+  requireAuth: require('./requireAuth'),
+  requireNotAuth: require('./requireNotAuth')
+};
+```
+
+Podemos refatorar nosso import em [app.js](app.js):
+
+```javascript
+Em vez de:
+const messages = require('./middlewares/messages');
+
+Agora temos:
+const { messages } = require('./middlewares');
+```

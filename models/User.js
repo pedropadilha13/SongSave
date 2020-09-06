@@ -44,22 +44,26 @@ UserSchema.static('findByEmail', async function (email) {
 
 // Temos também a possibilidade de adicionar 'hooks' aos Schemas
 // Por exemplo, a função a seguir será executada logo antes que um save()
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', async function (next) {
+  if (this.isNew) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+
   this.updated = Date.now();
   return next;
 });
 
 // Podemos também adicionar métodos aos Schemas
 // O método a seguir compara uma senha fornecida com a senha do usuário, e retorna o resultado da comparação:
-UserSchema.method('verifyPassword', function (password) {
+UserSchema.methods.verifyPassword = function (password) {
   return new Promise(async resolve => {
     const passwordIsCorrect = await bcrypt.compare(password, this.password);
     resolve(passwordIsCorrect);
   });
-});
+};
 
 // Já o próximo atualiza a senha do usuário:
-UserSchema.method('updatePassword', function (newPassword) {
+UserSchema.methods.updatePassword = function (newPassword) {
   return new Promise(async (resolve, reject) => {
     try {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -70,11 +74,11 @@ UserSchema.method('updatePassword', function (newPassword) {
       reject(err);
     }
   });
-});
+};
 
 // Podemos ter métodos que fazem ações simples, como juntar o nome e sobrenome para formar o nome completo do usuário:
-UserSchema.method('getName', function () {
+UserSchema.methods.getName = function () {
   return `${this.firstName} ${this.lastName}`;
-});
+};
 
 module.exports = mongoose.model('User', UserSchema);

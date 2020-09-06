@@ -1,0 +1,9 @@
+.signup-form {
+  color: var(--color1);
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--background-color2);
+  border-radius: 10px;
+}

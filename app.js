@@ -7,13 +7,20 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const session = require('express-session');
+const passport = require('passport');
+const { messages } = require('./middlewares');
+const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')(session);
 
-const connectDB = require('./services/db');
 require('./models/User');
 require('./models/Link');
 require('./models/Playlist');
 
+const connectDB = require('./services/db');
 connectDB();
+
+require('./services/passport');
 
 // Aqui são importadas as duas rotas do template do Express, index e users
 const indexRouter = require('./routes/index');
@@ -35,7 +42,22 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(
+  session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(messages);
 
 // Aqui, identificamos o caminho e em seguida passamos a rota (que importamos no topo do arquivo)
 app.use('/', indexRouter);

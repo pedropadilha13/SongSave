@@ -4,6 +4,12 @@
     <% include shared/_header %>
   </head>
   <body>
-    <%- include(locals.page || 'index') %> <% include shared/_scripts %>
+    <% locals.messages && locals.messages.forEach(message => { %>
+      <% include shared/_message %>
+    <% }) %>
+    
+    <%- include(locals.page || 'index') %>
+    
+    <% include shared/_scripts %>
   </body>
 </html>
