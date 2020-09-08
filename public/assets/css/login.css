@@ -1,7 +1,8 @@
 .login-form {
   color: var(--color1);
   width: 100%;
-  max-width: 300px;
+  max-width: clamp(330px, calc(330px + 10vw), 18vw);
+  height: 100%;
   margin: 0 auto;
   padding: 20px;
   background-color: var(--background-color2);

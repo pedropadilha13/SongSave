@@ -4,6 +4,8 @@
     <% include shared/_header %>
   </head>
   <body>
+    <% include shared/_navbar %> 
+
     <% locals.messages && locals.messages.forEach(message => { %>
       <% include shared/_message %>
     <% }) %>

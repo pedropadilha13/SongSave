@@ -25,6 +25,8 @@ require('./services/passport');
 // Aqui são importadas as duas rotas do template do Express, index e users
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+const playlistsRouter = require('./routes/playlists');
 
 // Invocando express(), criamos a nossa aplicação Express
 const app = express();
@@ -62,6 +64,8 @@ app.use(messages);
 // Aqui, identificamos o caminho e em seguida passamos a rota (que importamos no topo do arquivo)
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
+app.use('/playlists', playlistsRouter);
 
 // Este middleware será executado quando nenhuma rota for encontrada para satisfazer a requisição
 // Invocamos next passando um novo erro 404 (Not Found)

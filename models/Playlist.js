@@ -18,6 +18,11 @@ const PlaylistSchema = new Schema({
   links: {
     type: [LinkSchema]
   },
+  privacy: {
+    type: String,
+    enum: ['public', 'private'],
+    default: 'private'
+  },
   created: {
     type: Date,
     default: Date.now

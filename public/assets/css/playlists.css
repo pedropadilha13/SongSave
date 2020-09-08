@@ -1,0 +1,19 @@
+.add-button {
+  border-radius: 50%;
+  color: var(--color1);
+  padding: 15px;
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  border: 2px solid var(--color1);
+}
+
+.add-button i {
+  height: 32px;
+  width: 32px;
+}
+
+.add-button:hover {
+  color: var(--background-color);
+  background-color: var(--color1);
+}

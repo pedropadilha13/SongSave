@@ -10,7 +10,7 @@ const LinkSchema = new Schema({
   title: {
     type: String,
     trim: true,
-    required: [true, 'Link URL required']
+    required: [true, 'Link title required']
   },
   created: {
     type: Date,

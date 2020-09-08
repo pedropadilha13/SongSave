@@ -8,7 +8,24 @@
   --color4: #253C78;
   --color5: #FFD8BE;
   --color6: #0A0908;
+  --color62: #080807;
   --danger: #D54420;
+}
+
+.pt-5r {
+  padding-top: 5rem;
+}
+
+.pt-8r {
+  padding-top: 8rem;
+}
+
+.pt-10r {
+  padding-top: 10rem;
+}
+
+.pt-20h {
+  padding-top: 20vh;
 }
 
 body {
@@ -20,4 +37,28 @@ body {
   margin-bottom: 0;
   border: none;
   border-radius: 0;
+}
+
+.navbar {
+  background-color: var(--background-color2);
+}
+
+.navbar a {
+  color: var(--color6);
+  font-size: 1.2rem;
+}
+
+a.navbar-brand {
+  color: var(--color1);
+  font-size: 1.4rem;
+}
+
+a.nav-link:hover:not(.dropdown-toggle) {
+  /* color: var(--color62); */
+  transform: scale(1.1);
+  transition: 200ms;
+}
+
+a.nav-link.active {
+  font-weight: 500;
 }

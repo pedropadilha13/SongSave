@@ -1,0 +1,13 @@
+.main-content {
+  width: 100%;
+  max-width: 60vw;
+  margin: 0 auto;
+}
+
+.main-content h1 {
+  font-size: 6rem;
+}
+
+.main-content>p {
+  font-size: 2rem;
+}

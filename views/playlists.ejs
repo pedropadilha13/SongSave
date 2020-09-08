@@ -1,0 +1,15 @@
+<% locals.playlists.forEach(playlist => { %>
+<div
+  class="card"
+  onclick="window.location.href = '/playlists/<%= playlist._id %>'"
+>
+  <div class="card-body">
+    <h5 class="card-title"><%= playlist.name %></h5>
+    <p class="card-text"><%= playlist.links.length %> itens</p>
+  </div>
+</div>
+<% }); %>
+
+<a href="/playlists/new" class="add-button btn btn-outline">
+  <i class="fa fa-2x fa-plus"></i>
+</a>

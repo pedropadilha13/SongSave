@@ -54,6 +54,8 @@ Repositório para estudar os principais aspectos de Node.js e um pouco mais :)
 
 - [Session Store](#session-store)
 
+- [Logout](#logout)
+
 - [Restringindo Acesso](#restringindo-acesso)
 
 ## Instalação
@@ -822,6 +824,19 @@ Na aba `COLLECTIONS`, podemos ver que temos uma `session` gravada:
 
 ![session stored in db](assets/images/collections-session.PNG)
 
+## Logout
+
+Antes de dar continuidade, vamos fazer uma coisa bem rápida: com tudo o que fizemos até agora, temos como entrar no nosso site, mas ainda não temos como sair. Para isso, criaremos uma nova rota `GET /auth/logout`:
+
+```javascript
+router.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+```
+
+Simples assim! Agora se formos até [http://localhost:3000/auth/logout](http://localhost:3000/auth/logout), vamos ver que somos redirecionados para **`/`**, e o erro aparece novamente. Agpra que conseguimos fazer login e logout, podemos implementar nossa restrição de rotas!
+
 ## Restringindo acesso
 
 Nossa próxima tarefa é ter certeza de que certas páginas só poderão ser acessadas por usuários logados e outras por usuários não logados. Para isso, vamos criar mais 2 _middlewares_, `requireAuth` e `requireNotAuth`:
@@ -876,3 +891,122 @@ const messages = require('./middlewares/messages');
 Agora temos:
 const { messages } = require('./middlewares');
 ```
+
+Vamos criar uma rota que retorna o perfil do usuário atual. Criaremos um arquivo novo [users.js](routes/users.js), e nele vamos ter o código padrão para criarmos um _Router_ e importaremos o _middleware_ requireAuth:
+
+```javascript
+const express = require('express');
+const router = express.Router();
+
+const { requireLogin } = require('../middlewares');
+
+module.exports = router;
+```
+
+Agora vamos criar uma nova rota `GET /users/me`:
+
+```javascript
+router.get('/', (req, res) => {
+  return res.json(req.user);
+});
+```
+
+Não podemos esquecer de importar e usar nosso Router novo em [app.js](app.js):
+
+```javascript
+[...]
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const usersRouter = require('./routes/users');
+
+[...]
+
+app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/users', usersRouter);
+[...]
+```
+
+Agora se formos até [http://localhost:3000/users/me](http://localhost:3000/users/me), vamos ver que recebemos corretamente nosso usuário guardado na `session`. (Caso nada apareça, certifique-se de que você se reconectou depois de testar a funcionalidade de logout que acabamos de implementar)
+
+Quando uma pessoa tenta fazer uma requisição e queremos ter certeza de que ela está logada, vamos usar o middleware `requireAuth`:
+
+```javascript
+router.get('/me', requireAuth, (req, res) => {
+  return res.json(req.user);
+});
+```
+
+Assim, quando fazemos um request `GET /users/me`, antes de cair na função que definimos na rota passamos pela função que criamos em [requireAuth.js](middlewares/requireAuth.js). Agora, quando tentamos fazer a mesma requisição, somos redirecionados para `/auth` com a mensagem definida no `middleware`.
+
+Agora que já sabemos como proteger rotas, podemos continuar a desenvolver nosso sistema.
+
+## Navbar
+
+Uma parte importante que precisaremos ter no nosso site é um _Navbar_, tanto para facilitar a navegação dos usuários quando para termos uma indicação visual do estado de autenticação do nosso sistema.
+
+Vamos criar uma nova _Partial View_: [\_navbar.ejs](views/shared/_navbar.ejs)
+
+E depois incluí-la em [main.ejs](views/main.ejs), logo abaixo da abertura da tag `body`:
+
+```ejs
+<% include shared/_navbar %>
+```
+
+Para nosso navbar funcionar corretamente, temos que passar para ele algumas informações: o `user` logado, para ele saber qual nome mostrar e o `path` da página que estamos renderizando para ele conseguir marcar um link como `active`:
+
+```javascript
+router.get('/', function (req, res, next) {
+  res.render('main', {
+    page: 'index',
+    path: '/',
+    user: req.user
+  });
+});
+```
+
+Assim, temos tudo o que precisamos para conseguir fazer nosso navbar funcionar! (Note que os links ainda não funcionam, ainda vamos implementar todas as rotas)
+
+## Index e Index, mas um Index só
+
+No nosso sistema, temos que ter duas "páginas principais": uma para usuários logados, e outra para visitantes que ainda não estão autenticados. Faremos distinção de acordo com o `user` que recebemos (ou não) do `render`:
+
+```ejs
+<% if (locals.user) { %>
+  <h1>Hello, <%= locals.user.firstName %>!</h1>
+<% } else { %>
+  <a href="/auth">Cadastre-se</a>
+<% } %>
+```
+
+Assim, podemos controlar o conteúdo que aparecerá, como fizemos no [\_navbar.ejs](views/shared/_navbar.ejs). Para facilitar, vamos extrair a página de visitantes para uma nova _Partial View_:
+
+- [index-guest.ejs](views/index-guest.ejs)
+
+E alteramos nossa view [index.ejs](views/index.ejs) para mostrar mostrar a nova view caso não haja usuário autenticado:
+
+```ejs
+<% if (!locals.user) { %>
+  <% include index-guest %>
+<% } else { %>
+  <h1>Hello, <%= locals.user.firstName %>!</h1>
+<% } %>
+```
+
+O comportamento da página é o mesmo, mas com nossa nova abordagem ficará mais fácil desenvolver as diferentes versões.
+
+Fiz uma página simples para apresentarmos aos visitantes, que contém uma pequena descrição do sistema, bem como links para a página de cadastro e login:
+
+![SongSave](assets/images/index-guest.PNG)
+
+## Playlists
+
+Agora que temos uma distinção bem definida entre os dois estados da nossa aplicação, vamos começar a implementar a sua funcionalidade principal: criação de playlists.
+
+Para isso, criaremos uma nova rota, [playlists.js](routes/playlists.js):
+
+```javascript
+
+```
+
+Obs: Não se esqueça de configurar a rota nova no arquivo [app.js](app.js), como já fizemos várias vezes.
