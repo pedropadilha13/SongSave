@@ -1,0 +1,23 @@
+<h1 class="pt-2 m-3 text-center"><%= locals.playlist.name %></h4>
+
+<div class="container row m-auto playlist">
+  <% locals.playlist.links.forEach(link => { %>
+    <a
+    class="card link-card col-12 mb-1"
+    href="<%= link.url %>"
+    target="_blank"
+    rel="noreferrer"
+    >
+        <div class="row no-gutters">
+            <div class="col-5 h-100">
+                <img src="<%= link.thumbnail %>" alt="<%= link.title %>" class="h-100 w-auto py-1">
+            </div>
+            <div class="col-7">
+                <div class="card-body">
+                    <h2 class="card-title"><%= link.title %></h2>
+                </div>
+            </div>
+        </div>
+    </a>
+    <% }); %>
+</div>

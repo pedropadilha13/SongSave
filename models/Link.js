@@ -12,13 +12,10 @@ const LinkSchema = new Schema({
     trim: true,
     required: [true, 'Link title required']
   },
-  created: {
-    type: Date,
-    default: Date.now
-  },
-  updated: {
-    type: Date,
-    default: Date.now
+  thumbnail: {
+    type: String,
+    trim: true,
+    required: [true, 'Thumbnail required']
   }
 });
 

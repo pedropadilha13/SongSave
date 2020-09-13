@@ -18,6 +18,10 @@ const PlaylistSchema = new Schema({
   links: {
     type: [LinkSchema]
   },
+  totalLinks: {
+    type: Number,
+    required: [true, 'Number of links is required']
+  },
   privacy: {
     type: String,
     enum: ['public', 'private'],

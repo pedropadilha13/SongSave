@@ -1,15 +1,15 @@
 :root {
-  --background-color: #F8F7FF;
-  --background-color2: #EDEBFF;
+  --background-color: #f8f7ff;
+  --background-color2: #edebff;
   /* --color1: #9381FF; */
-  --color1: #9855FF;
-  --color2: #E15634;
-  --color3: #34D1BF;
-  --color4: #253C78;
-  --color5: #FFD8BE;
-  --color6: #0A0908;
+  --color1: #9855ff;
+  --color2: #e15634;
+  --color3: #34d1bf;
+  --color4: #253c78;
+  --color5: #ffd8be;
+  --color6: #0a0908;
   --color62: #080807;
-  --danger: #D54420;
+  --danger: #d54420;
 }
 
 .pt-5r {
@@ -26,6 +26,14 @@
 
 .pt-20h {
   padding-top: 20vh;
+}
+
+.mh-20 {
+  min-height: 20vh;
+}
+
+.max-height-100 {
+  max-height: 100%;
 }
 
 body {
@@ -61,4 +69,10 @@ a.nav-link:hover:not(.dropdown-toggle) {
 
 a.nav-link.active {
   font-weight: 500;
+}
+
+#playlistForm {
+  width: 100%;
+  max-width: clamp(330px, calc(330px + 10vw), 25vw);
+  margin: 0 auto;
 }

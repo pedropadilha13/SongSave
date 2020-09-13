@@ -58,6 +58,24 @@ Repositório para estudar os principais aspectos de Node.js e um pouco mais :)
 
 - [Restringindo Acesso](#restringindo-acesso)
 
+- [Navbar](#navbar)
+
+- [Index e Index, mas um Index só](#index-e-index-mas-um-index-só)
+
+- [Playlists](#playlists)
+
+- [YouTube API](#youtube-api)
+
+- [Criando Playlists](#criando-playlists)
+
+- [Axios](#axios)
+
+- [Salvando Playlists](#salvando-playlists)
+
+- [Listando os links](#listando-os-links)
+
+- [Listando Playlists](#listando-playlists)
+
 ## Instalação
 
 Para instalar o Node, baixe o instalador no [site oficial](https://nodejs.org/).
@@ -70,7 +88,7 @@ Podemos confirmar que a instação foi concluída com sucesso executando o coman
 **npm** (Node Package Manager), como o próprio nome já diz, é o gerenciador de pacotes do Node. Quando instalamos o Node, o **npm** já vem junto. Podemos confirmar usando o comando `npm -v`:
 ![node -v: v6.14.8](assets/images/npm-version.PNG)
 
-## O que faremos?
+## O que faremos
 
 Para aprender os conceitos básicos de Node.js e algumas das principais tecnologias que estão à sua volta, vamos construir um sistema simples onde poderemos cadastrar usuários e suas músicas favoritas. Vamos lá!
 
@@ -95,7 +113,7 @@ Agora podemos criar o nosso projeto! Em um diretório vazio (chamei o meu de nod
 
 O meu diretório já tinha alguns arquivos, como [README.md]() e [LICENCE](), por isso tive que confirmar que queria criar o projeto lá mesmo.
 
-###### Vamos entender melhor o que ele criou:
+###### Vamos entender melhor o que ele criou
 
 - [public](/public): diretório de onde serão servidos recursos estáticos (ex. imagens, css, js)
 - [routes](/routes): diretório onde vamos colocar todas as nossas rotas
@@ -118,13 +136,13 @@ Chegou a hora de ver se tudo até agora funcionou! Quando o arquivo [package.jso
 
 ![npm run start](assets/images/npm-run-start.PNG)
 
-Por padrão, o servidor roda na porta 3000. Podemos então acessar a página [http://localhost:3000]() para ver se tudo deu certo:
+Por padrão, o servidor roda na porta 3000. Podemos então acessar a página [http://localhost:3000](http://localhost:3000) para ver se tudo deu certo:
 
 ![Welcome to Express](assets/images/welcome-to-express.png)
 
 Oba! Tudo funcionou corretamente e estamos vendo a página padrão do Express sendo renderizada na raiz do site.
 
-## O que são rotas?
+## O que são rotas
 
 Rotas são os caminhos que configuramos para que os serviços que a nossa aplicação vai disponibilizar sejam acessados. No nosso caso, por exemplo, criaremos uma rota para manipularmos os usuários e suas músicas preferidas. Os diferentes "caminhos" de uma API são chamados de **endpoints**.
 
@@ -134,7 +152,7 @@ Você pode perceber que o nosso modelo de projeto já veio com duas rotas config
 
 ![title: node](/assets/images/title-node.png)
 
-e acessarmos novamente a página em [http://localhost:3000](), veremos que o texto... Continua o mesmo! Por que será? 🤔
+e acessarmos novamente a página em [http://localhost:3000](http://localhost:3000), veremos que o texto... Continua o mesmo! Por que será? 🤔
 
 Há alguns minutos, nós iniciamos o nosso servidor, e em não fizemos nenhum tipo de atualização nele. Em outras palavras, ele não tem a menor ideia de que nós mudamos alguma coisa no nosso código. Para que as nossas mudanças façam efeito, devemos parar a execução do servidor, e depois iniciá-la novamente. Paramos a execução de algum processo com o comando `Ctrl+C`, e depois usamos o mesmo comando de antes:
 
@@ -265,9 +283,7 @@ Por motivos de segurança, **nunca** deixamos dados sensíveis no nosso código.
 
 No nosso [.env](.env), devemos simplesmente colocar `chave=valor`, sem nenhum tipo de notação complicada:
 
-```
-MONGO_URI=mongodb+srv://songsave:gxgDJWcvHrMmCn65@cluster0.ky6xj.mongodb.net/dev?retryWrites=true&w=majority
-```
+`MONGO_URI=mongodb+srv://songsave:gxgDJWcvHrMmCn65@cluster0.ky6xj.mongodb.net/dev?retryWrites=true&w=majority`
 
 O nosso servidor não sabe que queremos usar essas Variáveis de Ambiente, então temos que explicar isso para ele! Faremos isso usando o pacote [dotenv](https://www.npmjs.com/package/dotenv):
 
@@ -315,7 +331,7 @@ connectDB();
 
 Com as mudanças que fizemos, agora já podemos começar a desenvolver nosso sistema de verdade!
 
-## Recapitulando...
+## Recapitulando
 
 Vamos lembrar, de forma geral, o que fizemos até agora:
 
@@ -326,11 +342,11 @@ Vamos lembrar, de forma geral, o que fizemos até agora:
 
 Agora vamos começar a desenvolver nossa primeira tela!
 
-## Página de Login... Ou apenas uma Partial?
+## Página de Login... Ou apenas uma Partial
 
 Para identificarmos quem é quem no nosso sistema, vamos implementar as funções de **Cadastro** e **Login**. Poderíamos fazer uma página para cada, e depois uma página diferente para as áreas restritas do site, mas vamos fazer diferente: teremos uma página "master", e vamos inserir outras páginas menores dentro dela. Faremos isso usando _Partial Views_.
 
-##### O que é uma Partial View?
+##### O que é uma Partial View
 
 É, de forma simplificada, uma _View_ que é encaixada dentro de outra. Lembra quando inserimos "Joãozinho" na nossa página pelo `render`? Faremos a mesma coisa agora, mas inserindo outras páginas e componentes em vez de texto apenas.
 
@@ -434,11 +450,11 @@ Outra mudança interessante que faremos é adicionar a possibiidade de carregar 
 
 Vamos criar uma nova _Partial View_ chamada [\_styles.ejs](/views/shared/_styles.ejs):
 
-```
+```ejs
 <% locals.styles && styles.forEach(style => {
     if (style.substr(0, 4) !== "http") { %>
         <link rel="stylesheet"
-            href="/assets/css/<%= style.match(/[a-z0-9]{0,}\.css$/gi) ? style : `${style}.css?version=${parseInt(Math.random() * 10000000)}` %>" />
+            href="/assets/css/<%= style.match(/[a-z0-9]{0,}\.css$/gi) ? style : \`${style}.css?version=${parseInt(Math.random() * 10000000)}\` %>" />
     <% } else { %>
         <link rel="stylesheet" href="<%= style %>" />
     <% } %>
@@ -463,7 +479,7 @@ Faremos a mesma coisa para arquivos JS em [\_scripts.ejs](/views/shared/_scripts
 
 Agora, se adicionarmos `styles: ['login']` ao nosso render, vamos ver que o arquivo _login.css_ vai ser carregado pela nossa página:
 
-![login.css](/assets/images/login-network.png]
+![login.css](/assets/images/login-network.png)
 
 Podemos então criar estilos específicos para algumas páginas, e não ter apenas um arquivo gigante com todo o estilo do site inteiro. Mais uma vez, facilitando o entendimento e evitando erros.
 
@@ -662,7 +678,7 @@ Agora já conseguimos criar contas, nos deparamos com mais uma situação onde a
 <% }) %>
 ```
 
-## Login... Agora sim!
+## Login... Agora sim
 
 Como vamos redirecionar o usuário, não há como persistir a mensagem que queremos mandar entre _requests_. Para isso, vamos ter que usar outro módulo, que vai saber qual usuário está fazendo quais requisições no nosso servidor, e assim vai conseguir armazenar mensagens e outras informações. Este é o pacote que grava as _sessions_, e ele chama `express-session`.
 
@@ -778,7 +794,7 @@ Não precisamos supor, podemos testar e ver o que vai acontecer. Se digitarmos `
 
 ![Cannot read property 'firstName' of undefined](assets/images/cannot-read-firstName.PNG)
 
-###### O que aconteceu?
+###### O que aconteceu
 
 Você lembra que configuramos `sessions` para guardar quem é quem no nosso sistema, não é mesmo?
 Vimos que isso está funcionando corretamente até que o servidor reinicie. Isso acontece porque as `sessions` ficam guardadas na memória do servidor. No momento em que ele é desligado, ele perde tudo que estava armazenado na memória, perdendo assim todos os registros de quem estava logado no nosso sistema. Isso mostra para nós que temos que fazer duas modificações importantes na nossa aplicação:
@@ -1003,10 +1019,204 @@ Fiz uma página simples para apresentarmos aos visitantes, que contém uma peque
 
 Agora que temos uma distinção bem definida entre os dois estados da nossa aplicação, vamos começar a implementar a sua funcionalidade principal: criação de playlists.
 
-Para isso, criaremos uma nova rota, [playlists.js](routes/playlists.js):
-
-```javascript
-
-```
+Para isso, criaremos uma nova rota, [playlists.js](routes/playlists.js).
 
 Obs: Não se esqueça de configurar a rota nova no arquivo [app.js](app.js), como já fizemos várias vezes.
+
+Na nossa nova rota, vamos implementar algumas funcionalidades, como:
+
+- Listas Coleções Públicas
+- Listar Coleções de algum usuário
+- Listar Minhas Coleções
+- Visualisar Coleção
+- Criar nova Coleção
+
+Algumas delas são simples, e outras mais complexas. A de criação, por exemplo, é mais trabalhosa. Vamos armazenar, no nosso banco, alguns dados que não vamos conseguir obter do nosso formulário ([newPlaylist.ejs](/views/newPlaylist.ejs)). Nele, apenas inserimos as URLs dos vídeos que queremos salvar, mas vamos armazenar também o título e o link da thumbnail de cada vídeo.
+
+Como estamos fazendo apenas um projeto "modelo" e com pouco tempo, vamos escolher o meio mais comum que temos de assistir a vídeos: [YouTube](https://www.youtube.com/).
+
+## YouTube API
+
+Para conseguir as informações de cada vídeo que formos armazemar, vamos usar a [API do YouTube](https://developers.google.com/youtube/v3).
+
+Para conseguirmos acessar a API, temos que ter uma chave, e para conseguirmos a chave temos que primeiro cirar um projeto no [Google Developer Console](https://console.developers.google.com/). (Se você ainda não tiver uma conta, vai precisar criar. Não se preocupe, é totalmente de graça).
+
+Para criar um projeto, basta clicar em _New Project_. Vou chamar o meu Projeto de SongSave:
+
+![New Project](/assets/images/new-project.png)
+
+Depois de criado o projeto, vamos clicar em "_Enable APIs and Services_", pesquisar por "YouTube" e selecionar o primeiro item da lista (YouTube Data API v3) e clicar em "_Enable_".
+
+Depois de alguns segundos, você será redirecionado para o dashboard do seu novo Projeto. Para pegar a nossa chave, vamos clicar em "_Credentials_", "+ _Create Credentials_" e "_API key_":
+
+![Create API key](/assets/images/create-credentials.png)
+
+Uma nova `API key` vai ser criada. Como sempre, devemos tomar muito cuidado para nunca divulgar seu conteúdo. Por isso, vamos colocá-la no nosso arquivo `.env`. Vou usar a chave `YOUTUBE_API_KEY`, mas você pode nomeá-la como quiser.
+
+## Criando Playlists
+
+Vamos usar nossa `YOUTUBE_API_KEY` na criação de novas Playlists. Quando uma requisição para nosso servidor for feita contendo todos os links que um usuário quer armazenar, vamos extrair os IDs dos vídeos das URLs fornecidas, fazer uma chamada à API com todos os IDs, e, depois que recebermos uma resposta, criar a Playlist no banco. Vamos lá!
+
+Na nossa rota `POST /playlists`, reebemos os dados do formulário ([newPlaylist](/views/newPlaylist.ejs)) e fazemos um pequeno tratamento para separar as linhas e retirar valores vazios:
+
+```javascript
+router.post('/', requireAuth, async (req, res) => {
+  let { name, privacy, links } = req.body;
+
+  links = links.split(/\r\n|\r|\n/).filter(link => link);
+});
+```
+
+Agora, temos em `links` um Array de URLs. Para conseguir pegar os IDs dos vídeos, vamos usar uma função que usa Regex. (Peguei essa função [aqui](https://gist.github.com/takien/4077195)).
+
+```javascript
+const getVideoId = url => {
+  url = url.split(/(vi\/|v%3D|v=|\/v\/|youtu\.be\/|\/embed\/)/);
+  return undefined !== url[2] ? url[2].split(/[^0-9a-z_\-]/i)[0] : url[0];
+};
+```
+
+Meio complicadinho, né? Mas o que importa para nós agora é que isso tudo vai retornar para nós o ID do vídeo. Para pegar todos os IDs, vamos mapear nosso Array `links`:
+
+```javascript
+const videoIds = links.map(getVideoId);
+```
+
+Agora temos um Array que contém apenas os IDs dos vídeos, que vai facilitar na hora que formos fazer nossa chamada à API.
+
+## Axios
+
+Para fazer nossas requests na API do YouTube, vamos usar um pacote chamado [Axios](https://github.com/axios/axios). Ele é extremamente fácil de usar! Vamos criar um diretório chamado [apis](assets/apis) dentro de [assets](/assets), e nele criar um arquivo chamado [youtube.js](/assets/apis/youtube.js):
+
+```javascript
+// Sempre importamos o que vamos usar
+const axios = require('axios').default;
+
+// Também vamos precisar da nossa `API key`
+// Como já colocamos nossa chave no arquivo .env, podemos acessá-la direto de `process.env`
+const { YOUTUBE_API_KEY } = process.env;
+
+// Aqui exportamos nossa instância do Axios,
+// que já vai ter por padrão a configuração abaixo:
+module.exports = axios.create({
+  // baseURL é a URL para onde mandaremos os nossos requests
+  baseUrl: 'https://www.googleapis.com/youtube/v3',
+  // Aqui especificamos parâmetros que serão adicionados a todos os nossos requests
+  params: {
+    // Temos que mandar sempre nossa key, com uma key de key (prometo que não estou tentando confundir ninguém 😬)
+    key: YOUTUBE_API_KEY
+  }
+});
+```
+
+Agora, em [playlists.js](routes/playlists.js), vamos trazer nossa instância do Axios que criamos e fazer nossa chamada:
+
+```javascript
+const youtube = require('../assets/apis/youtube');
+
+[...]
+
+const { data } = await youtube.get('/videos', {
+  params: {
+    id: videoIds.join(','),
+    part: 'snippet'
+  }
+});
+```
+
+Quando usamos Axios, o resultado da requisição contém algumas informações que não vamos usar, então vamos desestruturar apenas a propriedade `data`, que é a resposta em si.
+
+## Salvando Playlists
+
+Como podemos ver na [documentação](https://developers.google.com/youtube/v3/docs/videos#resource), a resposta que recebemos da API contém muitos campos, mas nós só vamos precisar de dois, que serão:
+
+- Título (`item.snippet.title`)
+- Thumbnail (`item.snippet.thumbnails.medium.url`)
+
+Cada `item` é um elemento de um Array que recebemos em `data`. Em outras palavras, vamos iterar por todos os elementos de `data.items`, e para cada um vamos extrair os campos que nos interessam e armazenar na nossa variável `links`:
+
+```javascript
+data.items.forEach((videoInfo, i) => {
+  const { title, thumbnails } = videoInfo.snippet;
+
+  links[i] = {
+    url: links[i],
+    title: title,
+    thumbnail: thumbnails.medium.url
+  };
+});
+```
+
+Agora temos na nossa variável `links` um Array de objetos, cada um representando um [Link](/models/Link.js) que vamos armazenar no nosso banco de dados.
+
+Com tudo o que precisamos, podemos criar a nossa Playlist:
+
+```javascript
+const newPlaylist = await Playlist.create({
+  _user: req.user._id,
+  name,
+  privacy,
+  links
+});
+```
+
+É interessante confirmar para o usuário que a nova Coleção foi criada, por isso vamos criar uma nova Mensagem e depois redirecioná-lo para a página da nova Playlist:
+
+```javascript
+req.session.messages = [
+  ...(req.session.messages || []),
+  {
+    variant: 'success',
+    content: `Playlist "${newPlaylist.name}" criada com sucesso!`
+  }
+];
+return res.redirect(`/playlists/${newPlaylist._id}`);
+```
+
+Antes de criar nossa página de exibição de Playlist, vamos fazer um teste para ter certeza de que tudo até agora está funcionando como esperado. Depois de submeter o formulário, podemos checar que a Playlist realmente foi criada no [Atlas](https://cloud.mongodb.com/):
+
+![Playlist created](/assets/images/playlist-created.png)
+
+## Listando os links
+
+Ótimo, salvar a Playlist funcionou! Mas ainda não temos como visualizar o que está guardado no nosso banco. Vamos criar uma página para exibir o conteúdo de cada Playlist!
+
+Para isso, basta criarmos uma nova _View_, [playlist.ejs](/views/playlist.ejs). Nela, iteramos por todos os links e exibimos um [Card](https://getbootstrap.com/docs/4.5/components/card/) com a imagem e título da música:
+
+![Card example](/assets/images/card-example.png)
+
+## Listando Playlists
+
+Vamos também criar uma _View_ para mostrar diferentes Playlists: [playlists.ejs](/views/playlists.ejs)
+
+Perceba que só mostramos o nome do autor da Playlist quando estamos renderizando a página de "Coleções Públicas".
+
+Para renderizarmos as nossas novas _Views_, precisamos ter suas rotas configuradas corretamente, como fixemos até agora. Fazemos isso no arquivo [playlists.js](/routes/playlists.js):
+
+```javascript
+[...]
+
+router.get('/my', requireAuth, async (req, res) => {
+  ...
+});
+
+router.get('/public', async (req, res) => {
+  ...
+});
+
+router.get('/:id', async (req, res) => {
+  ...
+});
+
+[...]
+```
+
+Obs: Como sempre, o código completo pode ser encontrado entrando no [arquivo](/routes/playlists.js).
+
+Com tudo isso, agora podemos acessar os links que havíamos criado no [\_navbar](/views/shared/_navbar.ejs):
+
+`/playlists/my`
+![My Playlists](/assets/images/playlists-my.png)
+
+`/playlists/:id`
+![Melhores Músicas](/assets/images/melhores-musicas.png)

@@ -1,0 +1,13 @@
+.link-card {
+  background-color: #ffffff;
+}
+
+.link-card:hover {
+  background-color: var(--background-color2);
+}
+
+h2.card-title {
+  text-decoration: none;
+  display: inline-block;
+  color: var(--color6);
+}

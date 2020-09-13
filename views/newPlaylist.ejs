@@ -1,29 +1,24 @@
-<form>
+<form id='playlistForm' class="mt-5" autocomplete="off" method="POST" action="/playlists">
   <div class="form-group">
-    <div class="form-control">
-      <label for="inputName" class="sr-only"> Nome </label>
-      <input
-        type="text"
-        id="inputName"
-        name="name"
-        placeholder="Nome da Coleção"
-      />
-    </div>
+      <input type="text" id="inputName" name="name" placeholder="Nome da Coleção" class="form-control"
+        value="<%= locals.values && locals.values.name || '' %>" autocomplete="off " />
   </div>
 
   <div class="form-group">
-    <div class="form-control">
-      <label for="inputName" class="sr-only"> </label>
-      <input
-        type="text"
-        id="inputName"
-        name="name"
-        placeholder="Nome da Coleção"
-      />
-    </div>
+    <select name="privacy" id="selectPrivacy" class="form-control" class="form-control">
+      <option value='public' <%= !locals.values && 'selected' %> hidden disabled>Selecione a visibilidade da sua Coleção</option>
+      <option value="public" <%= locals.values ? locals.values.privacy === 'public' ? 'selected' : '' : '' %>>Pública
+      </option>
+      <option value="private" <%= locals.values ? locals.values.privacy === 'private' ? 'selected' : '' : ''%>>Privada
+      </option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <textarea name="links" id="inputLinks" class="form-control overflow-auto mh-20" placeholder="1 link por linha"></textarea>
   </div>
 
   <div>
-    <input type="submit" value="Salvar" />
+    <input type="submit" class="btn btn-primary btn-block" value="Salvar" />
   </div>
 </form>

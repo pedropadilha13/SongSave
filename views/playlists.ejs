@@ -1,14 +1,20 @@
-<% locals.playlists.forEach(playlist => { %>
+<h1 class="pt-2 m-3 text-center"><%= locals.title || 'Coleções' %></h4>
+
+<div class="container w-75 playlists">
+  <% locals.playlists.forEach(playlist => { %>
 <div
-  class="card"
+  class="card playlist-card"
   onclick="window.location.href = '/playlists/<%= playlist._id %>'"
 >
   <div class="card-body">
-    <h5 class="card-title"><%= playlist.name %></h5>
-    <p class="card-text"><%= playlist.links.length %> itens</p>
+    <h3 class="card-title"><%= playlist.name %></h3>
+    <%- playlist._user.firstName && `<h6 class="cart-subtitle text-muted">${playlist._user.firstName} ${playlist._user.lastName}</h6>` %> 
+    <span class="card-text">Total: <%= playlist.totalLinks %></span>
+    <span class="card-text float-right">Criado em: <%= new Date(playlist.created).toLocaleString() %></span>
   </div>
 </div>
 <% }); %>
+</div>
 
 <a href="/playlists/new" class="add-button btn btn-outline">
   <i class="fa fa-2x fa-plus"></i>

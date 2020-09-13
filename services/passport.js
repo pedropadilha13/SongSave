@@ -45,8 +45,6 @@ passport.use(
       try {
         const existingUser = await User.findOne({ email: username });
 
-        console.log(existingUser);
-
         if (!existingUser) {
           // Email não cadastrado, retornamos null e false
           req.session.messages = [

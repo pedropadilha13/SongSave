@@ -1,3 +1,21 @@
+.playlists {
+  display: grid;
+  row-gap: 10px;
+  column-gap: 20px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.playlist-card {
+  cursor: pointer;
+  transition: 200ms;
+  padding-top: 10px;
+}
+
+.playlist-card:hover {
+  background-color: var(--background-color2);
+  transform: scale(1.1);
+}
+
 .add-button {
   border-radius: 50%;
   color: var(--color1);
